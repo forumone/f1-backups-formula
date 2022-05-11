@@ -38,7 +38,7 @@ generate_rsync_key:
 
 "ssh-keyscan -H usw-s007.rsync.net >> ~/.ssh/known_hosts":
   cmd.run:
-    onlyif: /root/.ssh/config
+    - onlyif: /root/.ssh/config
 
 # Copy ID to rsync.net
 rsync_copy_id:
