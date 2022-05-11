@@ -23,15 +23,24 @@ generate_rsync_key:
     - name: ssh-keygen -N '' -f /root/.ssh/rsync_id && chmod 600 /root/.ssh/rsync_id.pub
     - creates: /root/.ssh/rsync_id
 
+ssh_config_exists:
+  file.managed:
+    - name: /root/.ssh/config
+    - replace: False
+    - user: root
+    - group: root
+    - mode: '0600'
+    - require:
+      - /root/.ssh/
+
 # SSH Config for rsync, set hostname and user
 /root/.ssh/config:
   file.append:
     - template: jinja
-    - source: salt://rsync/files/ssh-config
+    - sources:
+      - salt://rsyncnet/files/ssh-config
     - context:
-        user: {{ pillar['rsync']['user'] }}
-    - require_in:
-      - cmd: rsync_copy_id
+        user: {{ pillar.rsync.user }}
 
 "ssh-keyscan -H usw-s007.rsync.net >> ~/.ssh/known_hosts":
   cmd.run:
@@ -67,7 +76,7 @@ rsync-{{path}}:
     - user: root
     - group: root
     - mode: 750
-    - source: salt://rsync/files/rsync-backup.sh
+    - source: salt://rsyncnet/files/rsync-backup.sh
     - require:
       - file: /opt/rsync/bin
 
