@@ -3,12 +3,6 @@ roles:
   grains.append:
     - value: rsync
 
-install_sshpass:
-  pkg:
-    - name: sshpass
-    - installed
-    - enablerepo: epel
-
 # Ensure dir exists and perms are correct
 /root/.ssh:
   file.directory:
