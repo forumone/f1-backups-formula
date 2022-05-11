@@ -1,0 +1,9 @@
+rsync:
+  user: < USER >
+  pass: "< PASSWORD >"
+  dumpdbs: True
+  paths:
+    - /etc
+    - /srv
+    - /var/lib/mysqlbackups
+    - /var/www/vhosts
