@@ -1,5 +1,4 @@
 # Set a grain
-{% if grains.get('smallstep', False) %}
 roles:
   grains.append:
     - value: rsync
