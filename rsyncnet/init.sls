@@ -43,14 +43,9 @@ ssh_config_exists:
   cmd.run:
     - onlyif: /root/.ssh/config
 
-## Copy ID to rsync.net
-#rsync_copy_id:
-#  cmd.run:
-#    - name: |
-#        echo '{{ pillar['rsync']['pass'] }}' | sshpass ssh-copy-id /root/.ssh/rsync_id.pub rsyncbackup && touch /root/.ssh/.rsync-copied
-#    - creates: /root/.ssh/.rsync-copied
-#    - require: 
-#      - pkg: sshpass
+# Copy ID to rsync.net
+# temporary, run this manually
+# scp /root/.ssh/rsync_id.pub rsyncbackup:.ssh/authorized_keys
 
 # Add our paths from pillar
 {% for path in pillar['rsync']['paths'] %}
