@@ -30,8 +30,6 @@ ssh_config_exists:
     - user: root
     - group: root
     - mode: '0600'
-    - require:
-      - /root/.ssh/
 
 # SSH Config for rsync, set hostname and user
 /root/.ssh/config:
