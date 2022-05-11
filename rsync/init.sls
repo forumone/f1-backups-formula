@@ -25,7 +25,7 @@ generate_rsync_key:
 
 # SSH Config for rsync, set hostname and user
 /root/.ssh/config:
-  file.managed:
+  file.append:
     - user: root
     - group: root
     - mode: 600
