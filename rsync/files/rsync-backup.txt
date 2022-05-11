@@ -1,0 +1,4 @@
+/var/www/vhosts
+/etc/
+/var/lib/mysqlbackups/
+/var/spool/cron/
