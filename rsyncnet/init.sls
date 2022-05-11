@@ -1,6 +1,6 @@
 # Set a grain
 roles:
-  grains.present:
+  grains.append:
     - value: rsync
 
 install_sshpass:
