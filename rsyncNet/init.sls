@@ -26,9 +26,6 @@ generate_rsync_key:
 # SSH Config for rsync, set hostname and user
 /root/.ssh/config:
   file.append:
-    - user: root
-    - group: root
-    - mode: 600
     - template: jinja
     - source: salt://rsync/files/ssh-config
     - context:
