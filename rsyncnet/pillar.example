@@ -1,6 +1,5 @@
 rsync:
   user: < USER >
-  pass: "< PASSWORD >"
   dumpdbs: True
   paths:
     - /etc
