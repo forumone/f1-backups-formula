@@ -39,7 +39,7 @@ fi
 if [ -f $FIRST_RUN ]; then
   run /usr/bin/rsync -arz --delete-after -e '/usr/bin/ssh' --files-from=$PAYLOAD / $RSYNC_HOST: || echo "Backup problem"
 else
-  run /usr/bin/rsync -ar --whole-file --files-from=$PAYLOAD / $RSYNC_HOST: || echo "Backup problem"
+  run /usr/bin/rsync -ar --whole-file -e '/usr/bin/ssh' --files-from=$PAYLOAD / $RSYNC_HOST: || echo "Backup problem"
   /bin/touch $FIRST_RUN
 fi
 
