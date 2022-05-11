@@ -44,7 +44,7 @@ generate_rsync_key:
 rsync_copy_id:
   cmd.run:
     - name: |
-        echo '{{ pillar['rsync']['pass'] }}' | sshpass scp /root/.ssh/rsync_id.pub rsyncbackup:.ssh/authorized_keys && touch /root/.ssh/.rsync-copied
+        echo '{{ pillar['rsync']['pass'] }}' | sshpass ssh-copy-id /root/.ssh/rsync_id.pub rsyncbackup && touch /root/.ssh/.rsync-copied
     - creates: /root/.ssh/.rsync-copied
     - require: 
       - pkg: sshpass
