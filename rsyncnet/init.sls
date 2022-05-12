@@ -40,7 +40,7 @@ ssh_config_exists:
 
 {% for path in pillar['rsync']['paths'] %}
 rsync-{{path}}:
-  file.managed:
+  file.append:
     - name: /etc/rsync-backup.txt
     - text: {{ path }}
 {% endfor %}
