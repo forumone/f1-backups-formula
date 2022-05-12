@@ -1,9 +1,3 @@
-install_sshpass:
-  pkg:
-    - name: sshpass
-    - installed
-    - enablerepo: epel
-
 # Ensure dir exists and perms are correct
 /root/.ssh:
   file.directory:
@@ -42,10 +36,15 @@ ssh_config_exists:
 # temporary, run this manually
 # scp /root/.ssh/rsync_id.pub rsyncbackup:.ssh/authorized_keys
 
+# First, empty the file
+blank-rsyncnet:
+  cmd.run:
+    - name: '> /etc/rsync-backup.txt'
+
 # Add our paths from pillar
 {% for path in pillar['rsync']['paths'] %}
 rsync-{{path}}:
-  file.managed:
+  file.append:
     - name: /etc/rsync-backup.txt
     - text: {{ path }}
 {% endfor %}
