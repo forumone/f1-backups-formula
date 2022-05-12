@@ -1,8 +1,3 @@
-# Set a grain
-roles:
-  grains.append:
-    - value: rsync
-
 install_sshpass:
   pkg:
     - name: sshpass
@@ -76,13 +71,6 @@ rsync-{{path}}:
 #  Enable DB dumps if rsync:dumpdbs is True. Set a default False value if doesn't exist
 {% set dumpdbs = salt['pillar.get']('rsync:dumpdbs', False) %}
 {% if dumpdbs == True %}
-/opt/rsync/bin/rsync-backup.sh dumpdbs 2>&1 | logger -t backups:
-  cron.present:
-    - identifier: rsyncbackup
-    - user: root
-    - minute: random
-    - hour: 2
-{% elif 'mysql' in salt['grains.get']('roles', 'roles:none') %}
 /opt/rsync/bin/rsync-backup.sh dumpdbs 2>&1 | logger -t backups:
   cron.present:
     - identifier: rsyncbackup
