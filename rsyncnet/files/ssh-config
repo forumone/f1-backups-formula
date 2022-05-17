@@ -1,4 +1,5 @@
 Host rsyncbackup
   HostName usw-s007.rsync.net
   User {{ user }}
+  AddressFamily inet
   IdentityFile /root/.ssh/rsync_id
