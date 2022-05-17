@@ -37,7 +37,7 @@ readonly mail_on_success='{{ mail_on_success }}'
 readonly lockfile="/var/run/database-$identifier-backup.lock"
 
 # Name of the script holding database-specific functions
-readonly config_file="/opt/backup/lib/$identifier.sh"
+readonly config_file="/opt/backups/lib/$identifier.sh"
 
 # Name of the directory where backups for this database endpoint are stored
 readonly backup_dir="$backup_root/$identifier"
