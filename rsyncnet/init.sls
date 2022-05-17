@@ -1,3 +1,11 @@
+{% from 'backups/map.jinja' import mail_on_success, mail_from, mail_to with context %}
+
+{% set rsync_host = salt['pillar.get']('backups:rsync:host', 'usw-s007.rsync.net') %}
+{% set rsync_paths = salt['pillar.get']('backups:rsync:paths', ['/etc', '/srv']) %}
+
+{% set all_db_identifiers = salt['pillar.get']('backups:database:hosts', {}).keys() %}
+{% set identifiers = salt['pillar.get']('backups:rsync:databases', all_db_identifiers) %}
+
 # Ensure dir exists and perms are correct
 /root/.ssh:
   file.directory:
@@ -37,15 +45,13 @@ ssh_config_exists:
 # scp /root/.ssh/rsync_id.pub rsyncbackup:.ssh/authorized_keys
 
 # Add our paths from pillar
+/etc/rsync-backup.txt:
+  file.managed:
+    - user: root
+    - group: root
+    - mode: '0600'
+    - content: {{ rsync_paths | join("\n") | yaml_encode }}
 
-{% for path in pillar['rsync']['paths'] %}
-rsync-{{path}}:
-  file.append:
-    - name: /etc/rsync-backup.txt
-    - text: {{ path }}
-{% endfor %}
-
-# rsync / db dump script
 /opt/rsync/bin:
   file.directory:
     - user: root
@@ -53,30 +59,45 @@ rsync-{{path}}:
     - mode: 755
     - makedirs: True
 
-/opt/rsync/bin/rsync-backup.sh:
+/opt/rsync/bin/rsync-files.sh:
   file.managed:
     - user: root
     - group: root
     - mode: 750
-    - source: salt://rsyncnet/files/rsync-backup.sh
+    - source: salt://rsyncnet/files/rsync-files.sh
+    - template: jinja
+    - context:
+        rsync_host: {{ rsync_host }}
+        mail_to: {{ mail_to }}
+        mail_from: {{ mail_from }}
+        mail_on_success: {{ "True" if mail_on_success else '' }}
     - require:
       - file: /opt/rsync/bin
 
-# cron entry to run script
-#  Enable DB dumps if rsync:dumpdbs is True. Set a default False value if doesn't exist
-{% set dumpdbs = salt['pillar.get']('rsync:dumpdbs', False) %}
-{% if dumpdbs == True %}
-/opt/rsync/bin/rsync-backup.sh dumpdbs 2>&1 | logger -t backups:
+/opt/rsync/bin/rsync-files.sh |& logger -t backups:
   cron.present:
     - identifier: rsyncbackup
     - user: root
-    - minute: random
     - hour: 2
-{% else %}
-/opt/rsync/bin/rsync-backup.sh 2>&1 | logger -t backups:
-  cron.present:
-    - identifier: rsyncbackup
+    - minute: random
+
+/opt/rsync/bin/rsync-database.sh:
+  file.managed:
     - user: root
-    - minute: random
+    - group: root
+    - mode: 750
+    - source: salt://rsyncnet/files/rsync-database.sh
+    - template: jinja
+    - context:
+        mail_to: {{ mail_to }}
+        mail_from: {{ mail_from }}
+        mail_on_success: {{ True if mail_on_success else '' }}
+
+{% for identifier in identifiers %}
+/opt/rsync/bin/rsync-database.sh "{{ identifier }}" |& logger -t backups:
+  cron.present:
+    - identifier: rsync-{{ identifier }}
+    - user: root
     - hour: 2
-{% endif %}
+    - minute: random
+{% endfor %}

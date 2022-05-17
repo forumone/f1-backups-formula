@@ -1,8 +1,51 @@
-rsync:
-  user: < USER >
-  dumpdbs: True
-  paths:
-    - /etc
-    - /srv
-    - /var/lib/mysqlbackups
-    - /var/www/vhosts
+backups:
+  mail:
+    # Optional
+    to: sysadmins@forumone.com
+    from: backups@byf1.dev
+
+    # Set to True to be notified regardless of backup script status. By default,
+    # this will only send mail on errors.
+    on_success: False
+
+  # Optional
+  dir: /var/lib/backups
+
+  database:
+    hosts:
+      # MySQL only needs host and port
+      mysql:
+        type: mysql
+        host: ro-mysql
+        port: 3306
+
+      # User is required for Postgres connections
+      postgres-prod:
+        type: postgres
+        host: ro-psql-prod
+        port: 5432
+        user: master
+
+      postgres-preprod:
+        type: postgres
+        host: ro-psql-preprod
+        port: 5432
+        user: master
+
+  rsync:
+    # Optional
+    host: usw-s007.rsync.net
+
+    # Optional
+    # Do not add /mnt/snapshot/vhosts or /var/www/vhosts; that path is synced specially using an OFS snapshot.
+    paths:
+      - /etc
+      - /srv
+
+    # Required
+    user: USER
+
+    # Optional
+    # Use this list to only sync some databases. If omitted, it will sync everything in backups:database:hosts.
+    databases:
+      - mysql
