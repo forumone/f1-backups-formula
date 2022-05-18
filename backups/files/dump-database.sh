@@ -163,10 +163,6 @@ fi
 # Annotate the lock now that we know we have it.
 echo "Started by pid $$ at $timestamp" >&10
 
-list_all_databases() {
-  true
-}
-
 # Now that we're running exclusively, register the script exit handler
 trap on_script_exit EXIT
 
@@ -179,6 +175,11 @@ while read -r line; do
     databases+=("$line")
   fi
 done < <(list_all_databases 2>&$log_fd)
+
+if test "${#databases[@]}" -eq 0; then
+  log_error "Error: the databases array is empty"
+  exit 1
+fi
 
 # Flag to determine if the backup operation was successful
 backup_ok=1
