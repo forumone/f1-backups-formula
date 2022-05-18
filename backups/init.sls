@@ -1,6 +1,6 @@
 {% from 'backups/map.jinja' import backup_root, mail_on_success, mail_to, mail_from with context %}
 
-{$backup_root}:
+{{ backup_root }}:
   file.directory:
     - user: root
     - group: root
@@ -52,4 +52,11 @@
         user: {{ data.get('user', '') }}
     - require:
       - file: /opt/backups/lib
+
+{{ backup_root }}/{{ identifier }}:
+  file.directory:
+    - user: root
+    - group: root
+    - mode: 755
+    - makedirs: True
 {% endfor %}
