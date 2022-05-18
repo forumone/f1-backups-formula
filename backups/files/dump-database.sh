@@ -175,7 +175,7 @@ while read -r line; do
     log_info "Ignoring database $line"
   else
     databases+=("$line")
-    ((database_count++))
+    database_count=$((database_count + 1))
   fi
 done < <(list_all_databases 2>&$log_fd)
 
