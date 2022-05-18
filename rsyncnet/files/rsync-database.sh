@@ -39,7 +39,7 @@ readonly mail_on_success='{{ mail_on_success }}'
 readonly local_backup_dir="$backup_root/$identifier/"
 
 # Same as local_backup_dir, but with the leading / stripped off.
-readonly remote_backup_dir="${backup_root#/}"
+readonly remote_backup_dir="${local_backup_dir#/}"
 
 # Name of the lockfile preventing overlapping runs of this script
 readonly lockfile="/var/run/rsync-databse-$identifier.lock"
