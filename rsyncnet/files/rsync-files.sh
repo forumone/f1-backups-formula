@@ -205,23 +205,23 @@ sync_ok=1
 
 if test -f "$rsync_first_run"; then
   log_info "Performing file sync"
-  if ! rsync -arz --delete-after -e /usr/bin/ssh --files-from="$rsync_payload" / "$rsync_host:" 2>&$log_fd; then
+  if ! rsync -arz --delete-after --mkpath -e /usr/bin/ssh --files-from="$rsync_payload" / "$rsync_host:" 2>&$log_fd; then
     log_error "Failed to rsync files from $rsync_payload to $rsync_host"
     sync_ok=
   fi
 
-  if ! rsync -arz --delete-after -e /usr/bin/ssh /mnt/snapshot/vhosts "$rsync_host:/var/www/vhosts" 2>&$log_fd; then
+  if ! rsync -arz --delete-after --mkpath -e /usr/bin/ssh /mnt/snapshot/vhosts "$rsync_host:/var/www/vhosts/" 2>&$log_fd; then
     log_error "Failed to rsync files from /mnt/snapshot/vhosts to $rsync_host"
     sync_ok=
   fi
 else
   log_info "Performing first-run file sync"
-  if ! rsync -ar --whole-file -e /usr/bin/ssh --files-from="$rsync_payload" / "$rsync_host:" 2>&$log_fd; then
+  if ! rsync -ar --whole-file --mkpath -e /usr/bin/ssh --files-from="$rsync_payload" / "$rsync_host:" 2>&$log_fd; then
     log_error "Failed to rsync files from $rsync_payload to $rsync_host"
     sync_ok=
   fi
 
-  if ! rsync -ar --whole-file -e /usr/bin/ssh /mnt/snapshot/vhosts "$rsync_host:/var/www/vhosts" 2>&$log_fd; then
+  if ! rsync -ar --whole-file --mkpath -e /usr/bin/ssh /mnt/snapshot/vhosts "$rsync_host:/var/www/vhosts/" 2>&$log_fd; then
     log_error "Failed to rsync files from /mnt/snapshot/vhosts to $rsync_host"
     sync_ok=
   fi
