@@ -34,7 +34,7 @@ ssh_config_exists:
     - sources:
       - salt://rsyncnet/files/ssh-config
     - context:
-        user: {{ pillar.rsync.user }}
+        user: {{ salt['pillar.get']('backups:rsync:user') }}
 
 "ssh-keyscan -H usw-s007.rsync.net >> ~/.ssh/known_hosts":
   cmd.run:
