@@ -13,7 +13,7 @@
     - user: root
     - group: root
     - mode: 640
-    - source: salt://database/files/dump-database.sh
+    - source: salt://backups/files/dump-database.sh
     - template: jinja
     - context:
         backup_root: {{ backup_root }}
@@ -37,7 +37,7 @@
     - user: root
     - group: root
     - mode: 640
-    - source: salt://database/files/{{ data.type }}.lib.sh
+    - source: salt://backups/files/{{ data.type }}.lib.sh
     - template: jinja
     - context:
         host: {{ data.host }}
