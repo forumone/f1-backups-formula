@@ -167,16 +167,19 @@ echo "Started by pid $$ at $timestamp" >&10
 trap on_script_exit EXIT
 
 log_info "Determining databases to back up"
+
+database_count=0
 databases=()
 while read -r line; do
   if is_ignored_database "$line"; then
     log_info "Ignoring database $line"
   else
     databases+=("$line")
+    ((database_count++))
   fi
 done < <(list_all_databases 2>&$log_fd)
 
-if test "${#databases[@]}" -eq 0; then
+if test "$database_count" -eq 0; then
   log_error "Error: the databases array is empty"
   exit 1
 fi
