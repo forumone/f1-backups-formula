@@ -4,9 +4,6 @@ One place for all F1 backup services
 # rsync.net formula
 SaltStack Formula for backups to rsync.net service
 
-# Backblaze
-TBD for Backblaze
-
 # wasabi-formula
 salt formula for wasabi s3 backups
 This WILL NOT backup files NOT on shared Objective FS Volume.
