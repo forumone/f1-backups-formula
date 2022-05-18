@@ -29,7 +29,7 @@
     - makedirs: True
 
 {# Create a database configuration script for each database host in the pillar #}
-{% for identifier, data in salt['pillar.get']('backups:database:hosts', {}) %}
+{% for identifier, data in salt['pillar.get']('backups:database:hosts', {}).items() %}
 /opt/backups/lib/{{ identifier }}.sh:
   file.managed:
     - user: root
