@@ -36,7 +36,7 @@ readonly mail_on_success='{{ mail_on_success }}'
 # what you're doing.
 
 # Name of the directory where backups for this database host are stored
-readonly backup_dir="$backup_root/$identifier"
+readonly backup_dir="$backup_root/$identifier/"
 
 # Name of the lockfile preventing overlapping runs of this script
 readonly lockfile="/var/run/rsync-databse-$identifier.lock"
@@ -157,7 +157,7 @@ log_info "Running '/opt/backups/bin/dump-database.sh $identifier'; its status wi
 bash "/opt/backups/bin/dump-database.sh" "$identifier"
 
 log_info "Syncing $backup_dir to rsync"
-rsync -arz --delete-after -e /usr/bin/ssh "$backup_dir" "$rsync_host:$backup_dir" 2>&$log_fd
+rsync -arz --delete-after --mkpath -e /usr/bin/ssh "$backup_dir" "$rsync_host:$backup_dir" 2>&$log_fd
 
 end="$(date +%s)"
 
