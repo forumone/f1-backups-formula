@@ -1,9 +1,7 @@
 #!/bin/bash
 # shellcheck enable=avoid-nullary-conditions
-# shellcheck enable=check-set-e-suppressed
 
 set -euo pipefail
-shopt -s inherit_errexit
 
 #####
 # Arguments
