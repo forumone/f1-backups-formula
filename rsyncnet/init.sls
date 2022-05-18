@@ -1,6 +1,6 @@
 {% from 'backups/map.jinja' import backup_root, mail_on_success, mail_from, mail_to with context %}
 
-{% set rsync_host = salt['pillar.get']('backups:rsync:host', 'usw-s007.rsync.net') %}
+{% set rsync_host = salt['pillar.get']('backups:rsync:host', 'rsyncbackup') %}
 {% set rsync_paths = salt['pillar.get']('backups:rsync:paths', ['/etc', '/srv']) %}
 
 {% set all_db_identifiers = salt['pillar.get']('backups:database:hosts', {}).keys() %}
