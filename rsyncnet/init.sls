@@ -1,4 +1,4 @@
-{% from 'backups/map.jinja' import mail_on_success, mail_from, mail_to with context %}
+{% from 'backups/map.jinja' import backup_root, mail_on_success, mail_from, mail_to with context %}
 
 {% set rsync_host = salt['pillar.get']('backups:rsync:host', 'usw-s007.rsync.net') %}
 {% set rsync_paths = salt['pillar.get']('backups:rsync:paths', ['/etc', '/srv']) %}
@@ -68,6 +68,7 @@ ssh_config_exists:
     - template: jinja
     - context:
         rsync_host: {{ rsync_host }}
+        rsync_payload: /etc/rsync-backup.txt
         mail_to: {{ mail_to }}
         mail_from: {{ mail_from }}
         mail_on_success: {{ "True" if mail_on_success else '' }}
@@ -89,6 +90,8 @@ ssh_config_exists:
     - source: salt://rsyncnet/files/rsync-database.sh
     - template: jinja
     - context:
+        backup_root: {{ backup_root }}
+        rsync_host: {{ rsync_host }}
         mail_to: {{ mail_to }}
         mail_from: {{ mail_from }}
         mail_on_success: {{ True if mail_on_success else '' }}
