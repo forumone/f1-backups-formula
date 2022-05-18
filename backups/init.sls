@@ -16,8 +16,10 @@
     - source: salt://database/files/dump-database.sh
     - template: jinja
     - context:
-      - backup_root: {{ backup_root }}
-      - mail_on_success: {{ "True" if mail_on_success else '' }}
+        backup_root: {{ backup_root }}
+        mail_to: {{ mail_to }}
+        mail_from: {{ mail_from }}
+        mail_on_success: {{ "True" if mail_on_success else '' }}
     - require:
       - file: /opt/backups/bin
 
