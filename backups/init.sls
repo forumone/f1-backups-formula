@@ -1,5 +1,12 @@
 {% from 'backups/map.jinja' import backup_root, mail_on_success, mail_to, mail_from with context %}
 
+{$backup_root}:
+  file.directory:
+    - user: root
+    - group: root
+    - mode: 755
+    - makedirs: True
+
 /opt/backups/bin:
   file.directory:
     - user: root
