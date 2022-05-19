@@ -13,12 +13,6 @@
     - group: root
     - mode: 700
 
-# Make sure rsync_id and rsync_id.pub are present
-generate_rsync_key:
-  cmd.run:
-    - name: ssh-keygen -N '' -f /root/.ssh/rsync_id && chmod 600 /root/.ssh/rsync_id.pub
-    - creates: /root/.ssh/rsync_id
-
 ssh_config_exists:
   file.managed:
     - name: /root/.ssh/config
