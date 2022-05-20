@@ -33,8 +33,8 @@ backups:
         user: master
 
   rsync:
-    # Optional
-    host: usw-s007.rsync.net
+    # Allows an override of the destination
+    # host: rsyncbackup
 
     # Optional
     # Do not add /mnt/snapshot/vhosts or /var/www/vhosts; that path is synced specially using an OFS snapshot.
