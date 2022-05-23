@@ -213,8 +213,8 @@ if test -f "$rsync_first_run"; then
     sync_ok=
   fi
 
-  if ! rsync -arz --delete-after -e /usr/bin/ssh /mnt/snapshot/vhosts "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
-    log_error "Failed to rsync files from /mnt/snapshot/vhosts to $rsync_host"
+  if ! rsync -arz --delete-after -e /usr/bin/ssh /mnt/snapshot/vhosts/ "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
+    log_error "Failed to rsync files from /mnt/snapshot/vhosts/ to $rsync_host"
     sync_ok=
   fi
 else
@@ -224,8 +224,8 @@ else
     sync_ok=
   fi
 
-  if ! rsync -ar --whole-file -e /usr/bin/ssh /mnt/snapshot/vhosts "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
-    log_error "Failed to rsync files from /mnt/snapshot/vhosts to $rsync_host"
+  if ! rsync -ar --whole-file -e /usr/bin/ssh /mnt/snapshot/vhosts/ "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
+    log_error "Failed to rsync files from /mnt/snapshot/vhosts/ to $rsync_host"
     sync_ok=
   fi
 
