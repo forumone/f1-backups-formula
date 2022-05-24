@@ -19,7 +19,7 @@
         backup_root: {{ backup_root }}
         mail_to: {{ mail_to }}
         mail_from: {{ mail_from }}
-        mail_on_success: {{ "True" if mail_on_success else '' }}
+        mail_on_success: {{ "True" if mail_on_success else '' | yaml_encode }}
     - require:
       - file: /opt/backups/bin
 

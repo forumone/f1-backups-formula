@@ -71,7 +71,7 @@ ssh_config_exists:
         rsync_payload: /etc/rsync-backup.txt
         mail_to: {{ mail_to }}
         mail_from: {{ mail_from }}
-        mail_on_success: {{ "True" if mail_on_success else '' }}
+        mail_on_success: {{ "True" if mail_on_success else '' | yaml_encode }}
     - require:
       - file: /opt/rsync/bin
 
@@ -94,7 +94,7 @@ ssh_config_exists:
         rsync_host: {{ rsync_host }}
         mail_to: {{ mail_to }}
         mail_from: {{ mail_from }}
-        mail_on_success: {{ True if mail_on_success else '' }}
+        mail_on_success: {{ "True" if mail_on_success else '' | yaml_encode }}
 
 {% for identifier in identifiers %}
 /opt/rsync/bin/rsync-database.sh "{{ identifier }}" |& logger -t backups:
