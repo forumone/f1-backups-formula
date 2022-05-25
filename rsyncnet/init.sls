@@ -2,6 +2,7 @@
 
 {% set rsync_host = salt['pillar.get']('backups:rsync:host', 'rsyncbackup') %}
 {% set rsync_paths = salt['pillar.get']('backups:rsync:paths', ['/etc', '/srv']) %}
+{% set rsync_from_snapshot = salt['pillar.get']('backups:rsync:from_snapshot', True) %}
 
 {% set all_db_identifiers = salt['pillar.get']('backups:database:hosts', {}).keys() %}
 {% set identifiers = salt['pillar.get']('backups:rsync:databases', all_db_identifiers) %}
@@ -63,6 +64,7 @@ ssh_config_exists:
     - context:
         rsync_host: {{ rsync_host }}
         rsync_payload: /etc/rsync-backup.txt
+        rsync_from_snapshot: {{ "True" if rsync_from_snapshot else '' | yaml_encode }}
         mail_to: {{ mail_to }}
         mail_from: {{ mail_from }}
         mail_on_success: {{ "True" if mail_on_success else '' | yaml_encode }}
