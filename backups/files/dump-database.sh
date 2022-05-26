@@ -74,7 +74,15 @@ log_error() {
 # Notify backup failure via email
 notify_backup_status() {
   local status="$1"
-  mailx -r "$mail_from" -s "$(hostname) database backup for $identifier: $status" "$mail_to" <"$logfile"
+  local message
+
+  # e.g., "sitename.byf1.dev database backup for mysql: success"
+  message="$(hostname) database backup for $identifier: $status"
+
+  # Output the message to 'backup-status' syslog tag, in order to identify the
+  # status message for weekly reports.
+  logger --tag backup-status "$message"
+  mailx -r "$mail_from" -s "$message" "$mail_to" <"$logfile"
 }
 
 on_script_exit() {

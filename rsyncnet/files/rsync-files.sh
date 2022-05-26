@@ -70,7 +70,11 @@ log_error() {
 # Notify backup status via email
 notify_backup_status() {
   local status="$1"
-  mailx -r "$mail_from" -s "rsync backup $status: $(hostname)" "$mail_to" <"$logfile"
+  local message
+  message="$(hostname) rsync backup $status"
+
+  logger --tag backup-status "$message"
+  mailx -r "$mail_from" -s "$message" "$mail_to" <"$logfile"
 }
 
 # Pretty-print a duration (in seconds) as either "XXmYYs" or "XhYYmZZs",
@@ -125,9 +129,11 @@ on_script_exit() {
   # Note that this happens first because otherwise we'll blow away the log file.
   if test $exit -ne 0; then
     notify_backup_status failure
+    echo "rsync backup $status: $(hostname)"
   elif test -n "$mail_on_success"; then
     log_info "Mailing on success because \$mail_on_success=$mail_on_success, which is not empty"
     notify_backup_status success
+    echo "some thing easy to grep: success"
   fi
 
   # Clean up the files we generated
