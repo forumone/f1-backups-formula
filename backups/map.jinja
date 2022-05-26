@@ -3,3 +3,5 @@
 {% set mail_on_success = salt['pillar.get']('backups:mail:on_success', False) %}
 {% set mail_to = salt['pillar.get']('backups:mail:to', "sysadmins@forumone.com") %}
 {% set mail_from = salt['pillar.get']('backups:mail:from', "backups@byf1.dev") %}
+
+{% set weekly_report = salt['pillar.get']('backups:weekly_report', False) %}

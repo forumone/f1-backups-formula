@@ -11,6 +11,9 @@ backups:
   # Optional
   dir: /var/lib/backups
 
+  # Set to True to be sent a weekly message summarizing backup activity.
+  weekly_report: False
+
   database:
     hosts:
       # MySQL only needs host and port

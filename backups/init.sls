@@ -1,4 +1,4 @@
-{% from 'backups/map.jinja' import backup_root, mail_on_success, mail_to, mail_from with context %}
+{% from 'backups/map.jinja' import backup_root, mail_on_success, mail_to, mail_from, weekly_report with context %}
 
 {{ backup_root }}:
   file.directory:
@@ -60,3 +60,25 @@
     - mode: 755
     - makedirs: True
 {% endfor %}
+
+{% if weekly_report %}
+/opt/backups/bin/weekly-report.sh:
+  file.managed:
+    - user: root
+    - group: root
+    - mode: 750
+    - source: salt://backups/files/weekly-report.sh
+    - context:
+        mail_to: {{ mail_to }}
+        mail_from: {{ mail_from }}
+    - require:
+      - file: /opt/backups/bin
+
+/opt/backups/bin/weekly-report.sh |& logger -t backups:
+  cron.present:
+    - identifier: backups-weekly-report
+    - user: root
+    - day: 0 # Sunday, per crontab.guru
+    - hour: 2
+    - minute: random
+{% endif %}
