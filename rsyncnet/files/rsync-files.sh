@@ -14,6 +14,9 @@ readonly rsync_host='{{ rsync_host }}'
 # File listing to use
 readonly rsync_payload='{{ rsync_payload }}'
 
+# Whether or not to sync /var/www/vhosts from an OFS snapshot
+readonly rsync_from_snapshot='{{ rsync_from_snapshot }}'
+
 # Who to notify on backup failures
 readonly mail_to='{{ mail_to }}'
 
@@ -111,7 +114,9 @@ on_script_exit() {
   # Unmount the snapshot before we send email, in order to report its status. It
   # is not a catastrophe if the snapshot can't be unmounted (it can't be, here
   # in this error handler), but it is worth surfacing.
-  if test -f /mnt/snapshot/README; then
+  #
+  # (Only perform this unmount check if we're using a snapshot.)
+  if test -n "$rsync_from_snapshot" && test -f /mnt/snapshot/README; then
     log_info "Unmounting OFS snapshot"
     if ! umount /mnt/snapshot 2>&$log_fd; then
       log_error "Failed to umount /mnt/snapshot"
@@ -159,44 +164,49 @@ trap on_script_exit EXIT
 
 start="$(date +%s)"
 
-if test -f /mnt/snapshot/README; then
-  log_info "Unmounting stale snapshot mount"
-  umount /mnt/snapshot 2>&$log_fd
-fi
+# If we're using a snapshot, prep the /mnt/snapshot directory
+if test -n "$rsync_from_snapshot"; then
+  log_info "Mounting an OFS snapshot \$rsync_from_snapshot=$rsync_from_snapshot, which is not empty"
 
-log_info "Ensuring directory /mnt/snapshot exists"
-mkdir -p /mnt/snapshot 2>&$log_fd
+  if test -f /mnt/snapshot/README; then
+    log_info "Unmounting stale snapshot mount"
+    umount /mnt/snapshot 2>&$log_fd
+  fi
 
-# Find and mount the latest OFS snapshot
-ofs_bucket="$(awk '$2 == "/var/www" { print $1 }' /etc/fstab)"
-if test -z "$ofs_bucket"; then
-  log_error "Failed to find OFS bucket mounted on /var/www"
-  exit 1
-fi
+  log_info "Ensuring directory /mnt/snapshot exists"
+  mkdir -p /mnt/snapshot 2>&$log_fd
 
-# Make sure that what we found is actually an S3 bucket
-if [[ "$ofs_bucket" != s3://* ]]; then
-  log_error "/var/www is mounted to $ofs_bucket which is not an S3 bucket"
-  exit 1
-fi
+  # Find and mount the latest OFS snapshot
+  ofs_bucket="$(awk '$2 == "/var/www" { print $1 }' /etc/fstab)"
+  if test -z "$ofs_bucket"; then
+    log_error "Failed to find OFS bucket mounted on /var/www"
+    exit 1
+  fi
 
-log_info "Found OFS bucket: $ofs_bucket"
+  # Make sure that what we found is actually an S3 bucket
+  if [[ "$ofs_bucket" != s3://* ]]; then
+    log_error "/var/www is mounted to $ofs_bucket which is not an S3 bucket"
+    exit 1
+  fi
 
-# Find the latest snapshot (-sz: list snapshots (-s) in UTC (-z)). The /^s3/
-# condition in awk avoids capturing the first line of output (the column names).
-ofs_snapshot="$(/sbin/mount.objectivefs list -sz "$ofs_bucket@$date" 2>&$log_fd | awk '/^s3/ { latest = $1 } END { print latest }')"
-if test -z "$ofs_snapshot"; then
-  log_error "Could not find OFS snapshot in $ofs_bucket matching date $date"
-  exit 1
-fi
+  log_info "Found OFS bucket: $ofs_bucket"
 
-log_info "Mounting OFS snapshot $ofs_snapshot to /mnt/snapshot"
-/sbin/mount.objectivefs "$ofs_snapshot" "/mnt/snapshot" 2>&$log_fd
+  # Find the latest snapshot (-sz: list snapshots (-s) in UTC (-z)). The /^s3/
+  # condition in awk avoids capturing the first line of output (the column names).
+  ofs_snapshot="$(/sbin/mount.objectivefs list -sz "$ofs_bucket@$date" 2>&$log_fd | awk '/^s3/ { latest = $1 } END { print latest }')"
+  if test -z "$ofs_snapshot"; then
+    log_error "Could not find OFS snapshot in $ofs_bucket matching date $date"
+    exit 1
+  fi
 
-# Validate
-if ! test -f "/mnt/snapshot/README"; then
-  log_error "Failed to validate mount of OFS snapshot $ofs_snapshot: no README present"
-  exit 1
+  log_info "Mounting OFS snapshot $ofs_snapshot to /mnt/snapshot"
+  /sbin/mount.objectivefs "$ofs_snapshot" "/mnt/snapshot" 2>&$log_fd
+
+  # Validate
+  if ! test -f "/mnt/snapshot/README"; then
+    log_error "Failed to validate mount of OFS snapshot $ofs_snapshot: no README present"
+    exit 1
+  fi
 fi
 
 # Flag to determine if the sync succeeded or failed. We attempt every operation
@@ -207,26 +217,34 @@ log_info "Ensuring /var/www/vhosts exists on the remote"
 ssh "$rsync_host" mkdir -p var/www/vhosts 2>&$log_fd
 
 if test -f "$rsync_first_run"; then
-  log_info "Performing file sync"
+  log_info "Performing file sync using files from $rsync_payload"
   if ! rsync -arz --delete-after -e /usr/bin/ssh --files-from="$rsync_payload" / "$rsync_host:" 2>&$log_fd; then
     log_error "Failed to rsync files from $rsync_payload to $rsync_host"
     sync_ok=
   fi
 
-  if ! rsync -arz --delete-after -e /usr/bin/ssh /mnt/snapshot/vhosts/ "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
-    log_error "Failed to rsync files from /mnt/snapshot/vhosts/ to $rsync_host"
-    sync_ok=
+  if test -n "$rsync_from_snapshot"; then
+    log_info "Performing file sync of /mnt/snapshot/vhosts/"
+
+    if ! rsync -arz --delete-after -e /usr/bin/ssh /mnt/snapshot/vhosts/ "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
+      log_error "Failed to rsync files from /mnt/snapshot/vhosts/ to $rsync_host"
+      sync_ok=
+    fi
   fi
 else
-  log_info "Performing first-run file sync"
+  log_info "Performing first-run file sync using files from $rsync_payload"
   if ! rsync -ar --whole-file -e /usr/bin/ssh --files-from="$rsync_payload" / "$rsync_host:" 2>&$log_fd; then
     log_error "Failed to rsync files from $rsync_payload to $rsync_host"
     sync_ok=
   fi
 
-  if ! rsync -ar --whole-file -e /usr/bin/ssh /mnt/snapshot/vhosts/ "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
-    log_error "Failed to rsync files from /mnt/snapshot/vhosts/ to $rsync_host"
-    sync_ok=
+  if test -n "$rsync_from_snapshot"; then
+    log_info "Performing first-run file sync of /mnt/snapshot/vhosts/"
+
+    if ! rsync -ar --whole-file -e /usr/bin/ssh /mnt/snapshot/vhosts/ "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
+      log_error "Failed to rsync files from /mnt/snapshot/vhosts/ to $rsync_host"
+      sync_ok=
+    fi
   fi
 
   # Note an error but don't bail; this is not considered catastrophic.
