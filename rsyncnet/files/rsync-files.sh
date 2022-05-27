@@ -73,7 +73,11 @@ log_error() {
 # Notify backup status via email
 notify_backup_status() {
   local status="$1"
-  mailx -r "$mail_from" -s "rsync backup $status: $(hostname)" "$mail_to" <"$logfile"
+  local message
+  message="$(hostname) rsync backup $status"
+
+  logger --tag backup-status "$message"
+  mailx -r "$mail_from" -s "$message" "$mail_to" <"$logfile"
 }
 
 # Pretty-print a duration (in seconds) as either "XXmYYs" or "XhYYmZZs",
