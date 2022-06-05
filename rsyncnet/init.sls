@@ -45,7 +45,7 @@ ssh_config_exists:
     - user: root
     - group: root
     - mode: '0600'
-    - content: {{ rsync_paths | join("\n") | yaml_encode }}
+    - contents: {{ rsync_paths | join("\n") | yaml_encode }}
 
 /opt/rsync/bin:
   file.directory:
