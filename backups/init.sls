@@ -78,7 +78,7 @@
   cron.present:
     - identifier: backups-weekly-report
     - user: root
-    - day: 0 # Sunday, per crontab.guru
+    - dayweek: 0 # Sunday, per crontab.guru
     - hour: 2
     - minute: random
 {% endif %}
