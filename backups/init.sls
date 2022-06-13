@@ -68,6 +68,7 @@
     - group: root
     - mode: 750
     - source: salt://backups/files/weekly-report.sh
+    - template: jinja
     - context:
         mail_to: {{ mail_to }}
         mail_from: {{ mail_from }}
