@@ -70,14 +70,30 @@ log_error() {
   logger --tag rsync-files --id $$ --priority user.err -- "$*"
 }
 
-# Notify backup status via email
+# Notify backup status in the logs (and optionally via email)
 notify_backup_status() {
   local status="$1"
   local message
   message="$(hostname) rsync backup $status"
 
   logger --tag backup-status "$message"
-  mailx -r "$mail_from" -s "$message" "$mail_to" <"$logfile"
+
+  # Send notification emails on two occasions:
+  # 1. Something bad happened and we've trapped a failure exit, or
+  # 2. We were asked to send emails even on successes.
+  #
+  # Note that this happens first because otherwise we'll blow away the log file.
+  do_mail=
+  if test "$status" == failure; then
+    do_mail=1
+  elif test "$status" == success && test -n "$mail_on_success"; then
+    log_info "Mailing on success because \$mail_on_success=$mail_on_success, which is not empty"
+    do_mail=1
+  fi
+
+  if test -n "$do_mail"; then
+    mailx -r "$mail_from" -s "$message" "$mail_to" <"$logfile"
+  fi
 }
 
 # Pretty-print a duration (in seconds) as either "XXmYYs" or "XhYYmZZs",
@@ -127,16 +143,11 @@ on_script_exit() {
     fi
   fi
 
-  # Send notification emails on two occasions:
-  # 1. Something bad happened and we've trapped a failure exit, or
-  # 2. We were asked to send emails even on successes.
-  #
-  # Note that this happens first because otherwise we'll blow away the log file.
-  if test $exit -ne 0; then
-    notify_backup_status failure
-  elif test -n "$mail_on_success"; then
-    log_info "Mailing on success because \$mail_on_success=$mail_on_success, which is not empty"
+  # Determine the success/failure status based on the exit code and send a notification.
+  if test $exit -eq 0; then
     notify_backup_status success
+  else
+    notify_backup_status failure
   fi
 
   # Clean up the files we generated
