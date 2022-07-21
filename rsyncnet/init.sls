@@ -33,7 +33,17 @@ ssh_config_exists:
 
 "ssh-keyscan -4 usw-s007.rsync.net >> ~/.ssh/known_hosts":
   cmd.run:
-    - onlyif: /root/.ssh/config
+    - onchanges: 
+      - /root/.ssh/config
+      
+#verify github's fingerprint is in the known_hosts as well
+github.com:
+  ssh_known_hosts:
+    - present
+    - user: root
+    - fingerprint: 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48
+    - fingerprint_hash_type: md5
+
 
 # Copy ID to rsync.net
 # temporary, run this manually
