@@ -36,8 +36,8 @@ usw-s007.rsync.net:
   ssh_known_hosts:
     - present
     - user: root
-    - fingerprint: SHA256:G4hq1a+D2he0uy43fYYFp3F3FXiSFmVFdJiwQYb/UzQ
-    - fingerprint_hash_type: sha256
+    - fingerprint: cb:96:5b:2c:19:98:c1:48:45:4c:8b:a9:d5:9c:76:2d
+    - fingerprint_hash_type: md5
       
 #verify github's fingerprint is in the known_hosts as well
 github.com:
