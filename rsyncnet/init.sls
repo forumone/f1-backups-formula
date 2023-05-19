@@ -38,15 +38,6 @@ usw-s007.rsync.net:
     - user: root
     - fingerprint: cb:96:5b:2c:19:98:c1:48:45:4c:8b:a9:d5:9c:76:2d
     - fingerprint_hash_type: md5
-      
-#verify github's fingerprint is in the known_hosts as well
-github.com:
-  ssh_known_hosts:
-    - present
-    - user: root
-    - fingerprint: 16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48
-    - fingerprint_hash_type: md5
-
 
 # Copy ID to rsync.net
 # temporary, run this manually
