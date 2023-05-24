@@ -233,7 +233,7 @@ ssh "$rsync_host" mkdir -p var/www/vhosts 2>&$log_fd
 
 if test -f "$rsync_first_run"; then
   log_info "Performing file sync using files from $rsync_payload"
-  if ! rsync --protocol=29 -arz --delete-after -e /usr/bin/ssh --files-from="$rsync_payload" / "$rsync_host:" 2>&$log_fd; then
+  if ! rsync -arz --delete-during --inc-recursive -e /usr/bin/ssh --files-from="$rsync_payload" / "$rsync_host:" 2>&$log_fd; then
     log_error "Failed to rsync files from $rsync_payload to $rsync_host"
     sync_ok=
   fi
@@ -241,14 +241,14 @@ if test -f "$rsync_first_run"; then
   if test -n "$rsync_from_snapshot"; then
     log_info "Performing file sync of /mnt/snapshot/vhosts/"
 
-    if ! rsync --protocol=29 -arz --delete-after -e /usr/bin/ssh /mnt/snapshot/vhosts/ "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
+    if ! rsync -arz --delete-during --inc-recursive -e /usr/bin/ssh /mnt/snapshot/vhosts/ "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
       log_error "Failed to rsync files from /mnt/snapshot/vhosts/ to $rsync_host"
       sync_ok=
     fi
   fi
 else
   log_info "Performing first-run file sync using files from $rsync_payload"
-  if ! rsync --protocol=29 -ar --whole-file -e /usr/bin/ssh --files-from="$rsync_payload" / "$rsync_host:" 2>&$log_fd; then
+  if ! rsync -ar --whole-file -e /usr/bin/ssh --files-from="$rsync_payload" / "$rsync_host:" 2>&$log_fd; then
     log_error "Failed to rsync files from $rsync_payload to $rsync_host"
     sync_ok=
   fi
@@ -256,7 +256,7 @@ else
   if test -n "$rsync_from_snapshot"; then
     log_info "Performing first-run file sync of /mnt/snapshot/vhosts/"
 
-    if ! rsync --protocol=29 -ar --whole-file -e /usr/bin/ssh /mnt/snapshot/vhosts/ "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
+    if ! rsync -ar --whole-file -e /usr/bin/ssh /mnt/snapshot/vhosts/ "$rsync_host:var/www/vhosts/" 2>&$log_fd; then
       log_error "Failed to rsync files from /mnt/snapshot/vhosts/ to $rsync_host"
       sync_ok=
     fi
