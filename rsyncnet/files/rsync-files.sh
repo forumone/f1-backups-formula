@@ -181,7 +181,7 @@ start="$(date +%s)"
 
 # If we're using a snapshot, prep the /mnt/snapshot directory
 if test -n "$rsync_from_snapshot"; then
-  log_info "Mounting an OFS snapshot \$rsync_from_snapshot=$rsync_from_snapshot, which is not empty"
+  log_info "Mounting an OFS snapshot because \$rsync_from_snapshot=$rsync_from_snapshot, which is not empty"
 
   if test -f /mnt/snapshot/README; then
     log_info "Unmounting stale snapshot mount"
